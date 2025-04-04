@@ -34,7 +34,6 @@ export async function PUT(req: Request) {
       { userId: decoded.id },
       {
         ...body,
-        farmSize: parseFloat(body.farmSize),
       },
       { new: true }
     );
