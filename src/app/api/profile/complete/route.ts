@@ -43,7 +43,7 @@ export async function POST(req: Request) {
     const farmProfile = await FarmProfile.create({
       userId: decoded.id,
       farmName,
-      farmSize: parseFloat(farmSize),
+      farmSize,
       sizeUnit,
       primaryCrop,
       secondaryCrops,

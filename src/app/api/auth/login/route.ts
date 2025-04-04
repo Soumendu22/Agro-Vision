@@ -22,7 +22,7 @@ export async function POST(req: Request) {
     }
 
     // Find user
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).populate('farmProfile');
     console.log('User search result:', {
       found: !!user,
       hasPassword: !!user?.password,
@@ -60,6 +60,8 @@ export async function POST(req: Request) {
       email: user.email,
       country: user.country,
       region: user.region,
+      hasCompletedProfile: user.hasCompletedProfile,
+      farmDetails: user.farmProfile,
       createdAt: user.createdAt,
     };
 

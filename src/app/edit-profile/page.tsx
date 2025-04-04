@@ -47,7 +47,7 @@ const icon = new Icon({
 
 const profileSchema = z.object({
   farmName: z.string().min(2, "Farm name must be at least 2 characters"),
-  farmSize: z.string().min(1, "Please enter farm size"),
+  farmSize: z.number().min(0.1, "Please enter a valid farm size"),
   sizeUnit: z.enum(["acres", "hectares"]),
   primaryCrop: z.string().min(1, "Please select primary crop"),
   soilType: z.string().min(1, "Please select soil type"),
@@ -123,7 +123,7 @@ export default function EditProfilePage() {
       const { farmDetails } = userData;
       form.reset({
         farmName: farmDetails.farmName,
-        farmSize: farmDetails.farmSize.toString(),
+        farmSize: Number(farmDetails.farmSize),
         sizeUnit: farmDetails.sizeUnit,
         primaryCrop: farmDetails.primaryCrop,
         soilType: farmDetails.soilType,
@@ -210,7 +210,13 @@ export default function EditProfilePage() {
                           <FormItem>
                             <FormLabel>Farm Size</FormLabel>
                             <FormControl>
-                              <Input {...field} type="number" className="bg-neutral-700 border-neutral-600" />
+                              <Input 
+                                {...field}
+                                type="number"
+                                step="0.01"
+                                onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                                className="bg-neutral-700 border-neutral-600"
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
