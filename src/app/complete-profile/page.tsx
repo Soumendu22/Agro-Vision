@@ -34,16 +34,16 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { MapPin, Sprout, Droplets, Leaf } from "lucide-react";
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
-import { Icon } from 'leaflet';
+import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import { Icon } from "leaflet";
 import { Combobox } from "@/components/ui/combobox";
 
 // Fix for default marker icon
 const icon = new Icon({
   iconUrl: "https://unpkg.com/leaflet@1.9.3/dist/images/marker-icon.png",
   iconSize: [25, 41],
-  iconAnchor: [12, 41]
+  iconAnchor: [12, 41],
 });
 
 const profileSchema = z.object({
@@ -93,7 +93,11 @@ const irrigationTypeOptions = [
   { value: "other", label: "Other" },
 ];
 
-function LocationMarker({ setLocation }: { setLocation: (pos: { lat: number; lng: number }) => void }) {
+function LocationMarker({
+  setLocation,
+}: {
+  setLocation: (pos: { lat: number; lng: number }) => void;
+}) {
   useMapEvents({
     click(e) {
       setLocation(e.latlng);
@@ -116,9 +120,9 @@ export default function CompleteProfilePage() {
   });
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
+    const storedUser = localStorage.getItem("user");
     if (!storedUser) {
-      router.push('/');
+      router.push("/");
       return;
     }
     setUser(JSON.parse(storedUser));
@@ -132,20 +136,20 @@ export default function CompleteProfilePage() {
             lng: position.coords.longitude,
           };
           setMapCenter(newCenter);
-          form.setValue('location', newCenter);
+          form.setValue("location", newCenter);
         },
-        (error) => console.log('Error getting location:', error)
+        (error) => console.log("Error getting location:", error)
       );
     }
   }, [router, form]);
 
   const onSubmit = async (data: z.infer<typeof profileSchema>) => {
     try {
-      const response = await fetch('/api/profile/complete', {
-        method: 'POST',
+      const response = await fetch("/api/profile/complete", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
         body: JSON.stringify(data),
       });
@@ -153,17 +157,21 @@ export default function CompleteProfilePage() {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || 'Failed to update profile');
+        throw new Error(result.error || "Failed to update profile");
       }
 
       // Update user in localStorage with completed profile
-      const updatedUser = { ...user, hasCompletedProfile: true, farmDetails: data };
-      localStorage.setItem('user', JSON.stringify(updatedUser));
+      const updatedUser = {
+        ...user,
+        hasCompletedProfile: true,
+        farmDetails: data,
+      };
+      localStorage.setItem("user", JSON.stringify(updatedUser));
 
-      toast.success('Profile completed successfully!');
-      router.push('/dashboard');
+      toast.success("Profile completed successfully!");
+      router.push("/dashboard");
     } catch (error: any) {
-      toast.error(error.message || 'Failed to complete profile');
+      toast.error(error.message || "Failed to complete profile");
     }
   };
 
@@ -178,18 +186,26 @@ export default function CompleteProfilePage() {
         >
           <Card className="bg-neutral-800 border-neutral-700">
             <CardHeader>
-              <CardTitle className="text-2xl text-white">Complete Your Farm Profile</CardTitle>
+              <CardTitle className="text-2xl text-white">
+                Complete Your Farm Profile
+              </CardTitle>
               <CardDescription>
-                Please provide details about your farm to help us serve you better
+                Please provide details about your farm to help us serve you
+                better
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="space-y-8"
+                >
                   <div className="space-y-4">
-                    <h3 className="text-lg font-medium text-white">Basic Information</h3>
+                    <h3 className="text-lg font-medium text-white">
+                      Basic Information
+                    </h3>
                     <Separator className="bg-neutral-700" />
-                    
+
                     <FormField
                       control={form.control}
                       name="farmName"
@@ -197,10 +213,14 @@ export default function CompleteProfilePage() {
                         <FormItem>
                           <FormLabel>Farm Name</FormLabel>
                           <FormControl>
-                            <Input {...field} className="bg-neutral-700 border-neutral-600" />
+                            <Input
+                              {...field}
+                              className="bg-neutral-700 border-neutral-600"
+                            />
                           </FormControl>
                           <FormDescription>
-                            Enter the name of your farm or agricultural establishment
+                            Enter the name of your farm or agricultural
+                            establishment
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -215,11 +235,13 @@ export default function CompleteProfilePage() {
                           <FormItem>
                             <FormLabel>Farm Size</FormLabel>
                             <FormControl>
-                              <Input 
+                              <Input
                                 {...field}
                                 type="number"
                                 step="0.01"
-                                onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                                onChange={(e) =>
+                                  field.onChange(parseFloat(e.target.value))
+                                }
                                 className="bg-neutral-700 border-neutral-600"
                               />
                             </FormControl>
@@ -234,7 +256,10 @@ export default function CompleteProfilePage() {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Unit</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <Select
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                            >
                               <FormControl>
                                 <SelectTrigger className="bg-neutral-700 border-neutral-600">
                                   <SelectValue />
@@ -242,7 +267,9 @@ export default function CompleteProfilePage() {
                               </FormControl>
                               <SelectContent>
                                 <SelectItem value="acres">Acres</SelectItem>
-                                <SelectItem value="hectares">Hectares</SelectItem>
+                                <SelectItem value="hectares">
+                                  Hectares
+                                </SelectItem>
                               </SelectContent>
                             </Select>
                             <FormMessage />
@@ -336,12 +363,12 @@ export default function CompleteProfilePage() {
                       Farm Location
                     </h3>
                     <Separator className="bg-neutral-700" />
-                    
+
                     <div className="h-[300px] rounded-lg overflow-hidden border border-neutral-700">
                       <MapContainer
                         center={[mapCenter.lat, mapCenter.lng]}
                         zoom={13}
-                        style={{ height: '100%', width: '100%' }}
+                        style={{ height: "100%", width: "100%" }}
                       >
                         <TileLayer
                           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -350,7 +377,7 @@ export default function CompleteProfilePage() {
                         <LocationMarker
                           setLocation={(pos) => {
                             setMapCenter(pos);
-                            form.setValue('location', pos);
+                            form.setValue("location", pos);
                           }}
                         />
                         <Marker
@@ -378,4 +405,4 @@ export default function CompleteProfilePage() {
       </div>
     </div>
   );
-} 
+}

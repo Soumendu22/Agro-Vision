@@ -10,18 +10,21 @@ import { Edit } from "lucide-react";
 export default function DashboardPage() {
   const [user, setUser] = useState<any>(null);
   const router = useRouter();
-  const [farmLocation, setFarmLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [farmLocation, setFarmLocation] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
 
   useEffect(() => {
     // Check if user is logged in
-    const storedUser = localStorage.getItem('user');
+    const storedUser = localStorage.getItem("user");
     if (!storedUser) {
-      router.push('/');
+      router.push("/");
       return;
     }
     const userData = JSON.parse(storedUser);
     setUser(userData);
-    
+
     // Get farm location from user data
     if (userData.farmDetails?.location) {
       setFarmLocation(userData.farmDetails.location);
@@ -43,7 +46,7 @@ export default function DashboardPage() {
               Welcome to Your Dashboard, {user.name}
             </h1>
             <Button
-              onClick={() => router.push('/edit-profile')}
+              onClick={() => router.push("/edit-profile")}
               variant="outline"
               className="bg-neutral-700 hover:bg-neutral-600"
             >
@@ -64,7 +67,7 @@ export default function DashboardPage() {
               description="View detailed analysis of your farm's performance"
             />
             <DashboardCard
-              title="Crop Management"
+              title="Sustainability Score"
               description="Manage and monitor your crops"
             />
             <DashboardCard
@@ -78,13 +81,22 @@ export default function DashboardPage() {
   );
 }
 
-function DashboardCard({ title, description }: { title: string; description: string }) {
+function DashboardCard({
+  title,
+  description,
+}: {
+  title: string;
+  description: string;
+}) {
   const router = useRouter();
 
   const handleClick = () => {
     switch (title) {
       case "Weather Insights":
-        router.push('/weather-insights');
+        router.push("/weather-insights");
+        break;
+      case "Sustainability Score":
+        router.push("/sustainability-score");
         break;
       // Add other cases for different cards
       default:
@@ -102,4 +114,4 @@ function DashboardCard({ title, description }: { title: string; description: str
       <p className="text-neutral-300">{description}</p>
     </motion.div>
   );
-} 
+}
