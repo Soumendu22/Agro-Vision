@@ -1,9 +1,4 @@
 import { NextResponse } from 'next/server';
-import OpenAI from 'openai';
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
 
 // Keep track of last request time
 let lastRequestTime = 0;
@@ -17,14 +12,33 @@ const SYSTEM_PROMPT = `You are a multilingual expert agricultural and weather ad
 5. Provide pest control and disease management advice
 6. Give sustainable farming recommendations
 
+Format your responses following these rules:
+- For Hindi responses:
+  • Use proper punctuation (।) instead of (.)
+  • Start each new point on a new line
+  • Use numbers (1, 2, 3) for sequential steps
+  • Use bullet points (•) for lists
+  • Add clear line breaks between sections
+  • Never use asterisks (*) or other special characters for formatting
+
+- For English responses:
+  • Use proper punctuation
+  • Start each new point on a new line
+  • Use numbers (1, 2, 3) for sequential steps
+  • Use bullet points (•) for lists
+  • Add clear line breaks between sections
+  • Never use asterisks (*) or other special characters for formatting
+
 Respond in the same language as the user's question.
 Keep responses concise, practical, and focused on farming and weather-related topics.
-If asked about topics unrelated to farming or weather, politely redirect to agricultural topics.`;
+If asked about topics unrelated to farming or weather, politely redirect to agricultural topics.
+Dont add any other text or comments to the response.
+`;
 
 export async function POST(req: Request) {
-  if (!process.env.OPENAI_API_KEY) {
+  if (!process.env.GEMINI_API_KEY) {
     return NextResponse.json(
-      { error: 'OpenAI API key not configured' },
+      { error: 'Gemini API key not configured' },
       { status: 500 }
     );
   }
@@ -51,27 +65,69 @@ export async function POST(req: Request) {
     // Update last request time
     lastRequestTime = now;
 
-    const completion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: [
-        { role: "system", content: SYSTEM_PROMPT },
-        { role: "user", content: message }
-      ],
-      max_tokens: 150,
-      temperature: 0.7,
-    });
+    // Prepare the request for Gemini API
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contents: [{
+            role: "user",
+            parts: [
+              { text: SYSTEM_PROMPT + "\n\nUser message: " + message }
+            ]
+          }],
+          generationConfig: {
+            temperature: 0.7,
+            maxOutputTokens: 800,
+            topK: 40,
+            topP: 0.95,
+          },
+        }),
+      }
+    );
 
-    const reply = completion.choices[0]?.message?.content;
+    if (!response.ok) {
+      throw new Error(`Gemini API error: ${response.status}`);
+    }
+
+    const result = await response.json();
+    let reply = result.candidates?.[0]?.content?.parts?.[0]?.text;
 
     if (!reply) {
-      throw new Error('No response from OpenAI');
+      throw new Error('No response from Gemini');
     }
+
+    // Clean up the response
+    reply = reply
+      .replace(/\*\*/g, '') // Remove double asterisks
+      .replace(/\*/g, '') // Remove single asterisks
+      .replace(/\.(?=\S)/g, '। ') // Add space after Hindi punctuation
+      .replace(/([।.!?])(?=\S)/g, '$1 ') // Add space after punctuation
+      .replace(/\n\s*\n\s*\n/g, '\n\n') // Remove excessive line breaks
+      .replace(/(\d+\.)\s*/g, '\n$1 ') // Add line break before numbered points
+      .replace(/•\s*/g, '\n• ') // Add line break before bullet points
+      .replace(/\n{3,}/g, '\n\n') // Clean up multiple line breaks
+      .replace(/^\n+/, '') // Remove leading line breaks
+      .trim();
+
+    // Format sections with proper spacing
+    reply = reply
+      .split('\n')
+      .map((line: string) => line.trim())
+      .filter((line: string) => line) // Remove empty lines
+      .join('\n')
+      .replace(/(\d+\..*?)(?=\n\d+\.|$)/g, '$1\n') // Add line break between numbered sections
+      .trim();
 
     return NextResponse.json({ message: reply });
   } catch (error: any) {
     console.error('Chat API error:', error);
     
-    // Check for specific OpenAI errors
+    // Check for specific errors
     if (error?.response?.status === 429 || error?.status === 429) {
       return NextResponse.json(
         { error: 'Please wait a moment before sending another message.' },
