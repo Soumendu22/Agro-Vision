@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Schema, Model } from 'mongoose';
 
 export interface IFarmProfile extends Document {
   userId: mongoose.Types.ObjectId;
@@ -90,5 +90,14 @@ const farmProfileSchema = new Schema({
 farmProfileSchema.index({ userId: 1 });
 farmProfileSchema.index({ location: '2dsphere' });
 
-// Check if the model exists before creating it
-export default mongoose.models.FarmProfile || mongoose.model<IFarmProfile>('FarmProfile', farmProfileSchema); 
+// Compile model outside of try-catch for better error handling
+let FarmProfile: Model<IFarmProfile>;
+try {
+  // Try to get existing model
+  FarmProfile = mongoose.model<IFarmProfile>('FarmProfile');
+} catch {
+  // Model doesn't exist, create new one
+  FarmProfile = mongoose.model<IFarmProfile>('FarmProfile', farmProfileSchema);
+}
+
+export default FarmProfile; 
