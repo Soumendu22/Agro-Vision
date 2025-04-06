@@ -157,10 +157,10 @@ export async function POST(req: Request) {
               recommendations: getRecommendations(score, body),
             }, { headers })
           );
-        } catch (e) {
+        } catch (error) {
           resolve(
             NextResponse.json(
-              { error: "Failed to parse prediction result" },
+              { error: error instanceof Error ? error.message : "Failed to parse prediction result" },
               { status: 500, headers }
             )
           );
