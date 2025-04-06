@@ -6,7 +6,7 @@ interface MongooseCache {
 }
 
 declare global {
-  var mongoose: MongooseCache | undefined;
+  let mongoose: MongooseCache | undefined;
 }
 
 const MONGODB_URI = process.env.MONGODB_URI!;
@@ -17,7 +17,7 @@ if (!MONGODB_URI) {
   );
 }
 
-let cached: MongooseCache = global.mongoose || { conn: null, promise: null };
+const cached: MongooseCache = global.mongoose || { conn: null, promise: null };
 
 async function dbConnect() {
   if (cached.conn) {

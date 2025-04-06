@@ -13,10 +13,6 @@ interface IUser extends Document {
   farmProfile: mongoose.Types.ObjectId;
 }
 
-interface UserModel extends Model<IUser> {
-  // Remove this method from the static interface since we're using instance method
-}
-
 const userSchema = new mongoose.Schema({
   name: {
     type: String,

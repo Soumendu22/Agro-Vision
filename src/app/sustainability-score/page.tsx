@@ -78,6 +78,12 @@ const formSchema = z.object({
     .max(100, "Maximum value is 100"),
 });
 
+interface User {
+  farmDetails?: {
+    farmSize: number;
+  };
+}
+
 interface PredictionResult {
   score: number;
   rating: string;
@@ -85,7 +91,7 @@ interface PredictionResult {
 }
 
 export default function SustainabilityScorePage() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [predictionResult, setPredictionResult] =
     useState<PredictionResult | null>(null);
   const [loading, setLoading] = useState(false);
@@ -152,7 +158,8 @@ export default function SustainabilityScorePage() {
       }
 
       setPredictionResult(data);
-    } catch (err: any) {
+    } catch (error: unknown) {
+      const err = error as Error;
       setError(err.message || "An error occurred");
     } finally {
       setLoading(false);

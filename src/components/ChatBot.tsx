@@ -15,6 +15,29 @@ interface Message {
   language?: string;
 }
 
+interface SpeechRecognition extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  start: () => void;
+  stop: () => void;
+  onresult: (event: SpeechRecognitionEvent) => void;
+  onend: () => void;
+}
+
+interface SpeechRecognitionEvent {
+  results: {
+    [index: number]: {
+      [index: number]: {
+        transcript: string;
+      };
+    };
+  };
+}
+
+interface Window {
+  webkitSpeechRecognition: new () => SpeechRecognition;
+}
+
 export function ChatBot() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -23,25 +46,27 @@ export function ChatBot() {
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
-  const recognitionRef = useRef<any>(null);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
 
   useEffect(() => {
     // Initialize speech recognition
     if (typeof window !== 'undefined' && 'webkitSpeechRecognition' in window) {
-      const SpeechRecognition = (window as any).webkitSpeechRecognition;
-      recognitionRef.current = new SpeechRecognition();
-      recognitionRef.current.continuous = false;
-      recognitionRef.current.interimResults = false;
+      const SpeechRecognition = window.webkitSpeechRecognition as new () => SpeechRecognition;
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = false;
 
-      recognitionRef.current.onresult = (event: any) => {
+      recognition.onresult = (event: SpeechRecognitionEvent) => {
         const transcript = event.results[0][0].transcript;
         setInput(transcript);
         handleSubmit(undefined, transcript);
       };
 
-      recognitionRef.current.onend = () => {
+      recognition.onend = () => {
         setIsListening(false);
       };
+
+      recognitionRef.current = recognition;
     }
 
     return () => {
@@ -135,11 +160,12 @@ export function ChatBot() {
       const assistantMessage = { role: 'assistant' as const, content: data.message };
       setMessages(prev => [...prev, assistantMessage]);
       speakMessage(data.message);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Chat error:', error);
+      const err = error as Error;
       const errorMessage = 
-        error.message === 'Still experiencing high traffic. Please try again in a moment.' ?
-          error.message :
+        err.message === 'Still experiencing high traffic. Please try again in a moment.' ?
+          err.message :
           'Sorry, I encountered an error. Please try again.';
       
       setMessages(prev => [...prev, { 

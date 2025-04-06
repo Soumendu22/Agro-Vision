@@ -62,12 +62,13 @@ export async function POST(req: Request) {
       message: 'Profile completed successfully',
       farmProfile,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Profile completion error:', error);
+    const err = error as Error;
     return NextResponse.json(
       { 
-        error: error.message || 'Failed to complete profile',
-        details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        error: err.message || 'Failed to complete profile',
+        details: process.env.NODE_ENV === 'development' ? err.stack : undefined
       },
       { status: 500 }
     );

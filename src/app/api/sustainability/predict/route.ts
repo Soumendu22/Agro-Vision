@@ -2,6 +2,14 @@ import { NextResponse } from "next/server";
 import { spawn } from "child_process";
 import path from "path";
 
+interface SustainabilityData {
+  soil_ph: number;
+  soil_moisture: number;
+  fertilizer_usage_kg: number;
+  pesticide_usage_kg: number;
+  crop_yield_ton: number;
+}
+
 export async function POST(req: Request) {
   try {
     const body = await req.json();
@@ -115,9 +123,10 @@ export async function POST(req: Request) {
         }
       });
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = error as Error;
     return NextResponse.json(
-      { error: error.message || "Failed to predict sustainability score" },
+      { error: err.message || "Failed to predict sustainability score" },
       { status: 500 }
     );
   }
@@ -131,7 +140,7 @@ function getRating(score: number): string {
   return "Needs Improvement";
 }
 
-function getRecommendations(score: number, data: any): string[] {
+function getRecommendations(score: number, data: SustainabilityData): string[] {
   const recommendations: string[] = [];
 
   if (data.soil_ph < 6.0 || data.soil_ph > 7.5) {

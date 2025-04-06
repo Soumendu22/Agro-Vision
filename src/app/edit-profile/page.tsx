@@ -100,8 +100,23 @@ function LocationMarker({ setLocation }: { setLocation: (pos: { lat: number; lng
   return null;
 }
 
+interface User {
+  farmDetails?: {
+    farmName: string;
+    farmSize: number;
+    sizeUnit: string;
+    primaryCrop: string;
+    soilType: string;
+    irrigationType: string;
+    location: {
+      lat: number;
+      lng: number;
+    };
+  };
+}
+
 export default function EditProfilePage() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [mapCenter, setMapCenter] = useState({ lat: 20.5937, lng: 78.9629 });
   const router = useRouter();
 
@@ -157,8 +172,9 @@ export default function EditProfilePage() {
 
       toast.success('Profile updated successfully!');
       router.push('/dashboard');
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to update profile');
+    } catch (error: unknown) {
+      const err = error as Error;
+      toast.error(err.message || 'Failed to update profile');
     }
   };
 

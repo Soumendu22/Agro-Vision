@@ -7,8 +7,18 @@ import { Weather } from "@/components/Weather";
 import { Button } from "@/components/ui/button";
 import { Edit } from "lucide-react";
 
+interface User {
+  name: string;
+  farmDetails?: {
+    location: {
+      lat: number;
+      lng: number;
+    };
+  };
+}
+
 export default function DashboardPage() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
   const [farmLocation, setFarmLocation] = useState<{
     lat: number;

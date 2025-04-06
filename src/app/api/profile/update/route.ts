@@ -42,12 +42,13 @@ export async function PUT(req: Request) {
       message: 'Profile updated successfully',
       farmProfile,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Profile update error:', error);
+    const err = error as Error;
     return NextResponse.json(
       { 
-        error: error.message || 'Failed to update profile',
-        details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        error: err.message || 'Failed to update profile',
+        details: process.env.NODE_ENV === 'development' ? err.stack : undefined
       },
       { status: 500 }
     );

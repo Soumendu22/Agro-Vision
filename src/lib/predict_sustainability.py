@@ -1,6 +1,7 @@
 import sys
 import joblib
 import numpy as np
+import joblib 
 
 def predict_sustainability(features):
     try:

@@ -1,5 +1,13 @@
 import { NextResponse } from 'next/server';
 
+// Add this at the top of the file after imports
+interface APIError extends Error {
+  response?: {
+    status: number;
+  };
+  status?: number;
+}
+
 // Keep track of last request time
 let lastRequestTime = 0;
 const MIN_REQUEST_INTERVAL = 2000; // 2 seconds between requests
@@ -124,18 +132,21 @@ export async function POST(req: Request) {
       .trim();
 
     return NextResponse.json({ message: reply });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Chat API error:', error);
     
+    // Type guard for API error
+    const apiError = error as APIError;
+    
     // Check for specific errors
-    if (error?.response?.status === 429 || error?.status === 429) {
+    if (apiError?.response?.status === 429 || apiError?.status === 429) {
       return NextResponse.json(
         { error: 'Please wait a moment before sending another message.' },
         { status: 429 }
       );
     }
 
-    if (error?.response?.status === 401 || error?.status === 401) {
+    if (apiError?.response?.status === 401 || apiError?.status === 401) {
       return NextResponse.json(
         { error: 'Invalid API key. Please check your configuration.' },
         { status: 401 }

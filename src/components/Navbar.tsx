@@ -9,6 +9,10 @@ import { AuthModal } from "./auth/auth-forms";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
+interface User {
+  name: string;
+}
+
 const navItems = [
   { name: "Features", href: "features" },
   { name: "About", href: "about" },
@@ -25,7 +29,7 @@ export function Navbar() {
     type: "login",
   });
 
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
 
   useEffect(() => {

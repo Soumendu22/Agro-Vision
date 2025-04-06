@@ -106,8 +106,22 @@ function LocationMarker({
   return null;
 }
 
+interface User {
+  hasCompletedProfile?: boolean;
+  farmDetails?: {
+    farmName: string;
+    farmSize: number;
+    sizeUnit: string;
+    primaryCrop: string;
+    location: {
+      lat: number;
+      lng: number;
+    };
+  };
+}
+
 export default function CompleteProfilePage() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [mapCenter, setMapCenter] = useState({ lat: 20.5937, lng: 78.9629 }); // India center
   const router = useRouter();
 
@@ -170,8 +184,9 @@ export default function CompleteProfilePage() {
 
       toast.success("Profile completed successfully!");
       router.push("/dashboard");
-    } catch (error: any) {
-      toast.error(error.message || "Failed to complete profile");
+    } catch (error: unknown) {
+      const err = error as Error;
+      toast.error(err.message || "Failed to complete profile");
     }
   };
 

@@ -109,9 +109,10 @@ export function AuthModal({ isOpen, onClose, type }: AuthModalProps) {
       // Add this line to redirect to dashboard
       window.location.href = '/dashboard';
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Login error:', error);
-      toast.error(error.message || 'Failed to login');
+      const err = error as Error;
+      toast.error(err.message || 'Failed to login');
     } finally {
       setIsLoading(false);
     }
@@ -162,9 +163,10 @@ export function AuthModal({ isOpen, onClose, type }: AuthModalProps) {
         localStorage.setItem('token', loginResult.token);
       }
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Signup error:', error);
-      toast.error(error.message || 'Failed to create account');
+      const err = error as Error;
+      toast.error(err.message || 'Failed to create account');
     } finally {
       setIsLoading(false);
     }

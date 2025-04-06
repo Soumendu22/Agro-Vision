@@ -47,7 +47,7 @@ export async function POST(req: Request) {
       { message: 'User created successfully', user: userObject },
       { status: 201 }
     );
-  } catch (error: any) {
+  } catch (error: Error) {
     console.error('Signup error:', error);
     return NextResponse.json(
       { 

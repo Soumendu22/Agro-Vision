@@ -1,7 +1,7 @@
 import { Connection, Mongoose } from 'mongoose';
 
 declare global {
-  var mongoose: {
+  let mongoose: {
     conn: Connection | null;
     promise: Promise<Mongoose> | null;
   };

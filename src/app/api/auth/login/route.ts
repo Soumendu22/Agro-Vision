@@ -71,7 +71,7 @@ export async function POST(req: Request) {
       user: userResponse,
       token,
     });
-  } catch (error: any) {
+  } catch (error: Error) {
     console.error('Login error:', error);
     return NextResponse.json(
       { 

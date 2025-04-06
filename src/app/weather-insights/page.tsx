@@ -19,6 +19,31 @@ interface WeatherData {
   windSpeed: number;
 }
 
+interface WeatherItem {
+  dt: number;
+  main: {
+    temp: number;
+    humidity: number;
+    feels_like: number;
+  };
+  wind: {
+    speed: number;
+  };
+  weather: Array<{
+    description: string;
+    icon: string;
+  }>;
+}
+
+interface User {
+  farmDetails?: {
+    location: {
+      lat: number;
+      lng: number;
+    };
+  };
+}
+
 const getWeatherIcon = (description: string) => {
   const desc = description.toLowerCase();
   if (desc.includes('rain') || desc.includes('drizzle')) return <CloudRain className="h-8 w-8 text-blue-400" />;
@@ -27,7 +52,7 @@ const getWeatherIcon = (description: string) => {
 };
 
 export default function WeatherInsightsPage() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [weatherData, setWeatherData] = useState<WeatherData[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
@@ -57,7 +82,7 @@ export default function WeatherInsightsPage() {
       const data = await response.json();
       
       // Group data by day and calculate averages
-      const dailyData = data.list.reduce((acc: { [key: string]: any[] }, item: any) => {
+      const dailyData = data.list.reduce((acc: { [key: string]: WeatherItem[] }, item: WeatherItem) => {
         const date = startOfDay(new Date(item.dt * 1000)).toISOString();
         if (!acc[date]) {
           acc[date] = [];
