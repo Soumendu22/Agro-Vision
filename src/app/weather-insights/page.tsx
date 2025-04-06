@@ -34,15 +34,6 @@ interface WeatherItem {
   }>;
 }
 
-interface User {
-  farmDetails?: {
-    location: {
-      lat: number;
-      lng: number;
-    };
-  };
-}
-
 const getWeatherIcon = (description: string) => {
   const desc = description.toLowerCase();
   if (desc.includes('rain') || desc.includes('drizzle')) return <CloudRain className="h-8 w-8 text-blue-400" />;

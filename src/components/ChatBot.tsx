@@ -142,7 +142,7 @@ export function ChatBot() {
     if (scrollAreaRef.current) {
       scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [messages, handleSubmit]);
 
   const startListening = () => {
     if (recognitionRef.current) {
