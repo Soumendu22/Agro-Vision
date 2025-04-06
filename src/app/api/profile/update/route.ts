@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
-import User from '@/models/User';
 import FarmProfile from '@/models/FarmProfile';
 import { verifyToken } from '@/lib/auth';
 

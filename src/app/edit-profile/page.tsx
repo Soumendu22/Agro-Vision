@@ -164,8 +164,6 @@ export default function EditProfilePage() {
         throw new Error('Failed to update profile');
       }
 
-      const result = await response.json();
-      
       // Update user in localStorage
       const updatedUser = { ...user, farmDetails: data };
       localStorage.setItem('user', JSON.stringify(updatedUser));

@@ -63,7 +63,6 @@ export default function WeatherInsightsPage() {
       return;
     }
     const userData = JSON.parse(storedUser);
-    setUser(userData);
 
     if (userData.farmDetails?.location) {
       fetchWeatherData(userData.farmDetails.location);
@@ -81,7 +80,7 @@ export default function WeatherInsightsPage() {
       const data = await response.json();
       
       // Group data by day and calculate averages
-      const dailyData = data.list.reduce((acc: { [key: string]: WeatherItem[] }, item: WeatherItem) => {
+      const dailyData = (data.list as WeatherItem[]).reduce((acc: { [key: string]: WeatherItem[] }, item: WeatherItem) => {
         const date = startOfDay(new Date(item.dt * 1000)).toISOString();
         if (!acc[date]) {
           acc[date] = [];
@@ -91,8 +90,8 @@ export default function WeatherInsightsPage() {
       }, {});
 
       // Calculate daily averages
-      const processedData = Object.entries(dailyData).map(([date, items]) => {
-        const avgData = items.reduce((acc, item) => {
+      const processedData = Object.entries(dailyData).map(([date, items]: [string, WeatherItem[]]) => {
+        const avgData = items.reduce((acc: { temperature: number; humidity: number; feelsLike: number; windSpeed: number }, item: WeatherItem) => {
           acc.temperature += item.main.temp;
           acc.humidity += item.main.humidity;
           acc.feelsLike += item.main.feels_like;
@@ -105,16 +104,16 @@ export default function WeatherInsightsPage() {
         // Use the most frequent weather description for the day
         const descriptions = items.map(item => item.weather[0].description);
         const mostFrequentDescription = descriptions.sort(
-          (a, b) =>
-            descriptions.filter(v => v === a).length -
-            descriptions.filter(v => v === b).length
+          (a: string, b: string) =>
+            descriptions.filter((v: string) => v === a).length -
+            descriptions.filter((v: string) => v === b).length
         ).pop();
 
         return {
           date: new Date(date),
           temperature: Math.round(avgData.temperature / count),
           humidity: Math.round(avgData.humidity / count),
-          description: mostFrequentDescription,
+          description: mostFrequentDescription || '',
           icon: items[Math.floor(count / 2)].weather[0].icon,
           feelsLike: Math.round(avgData.feelsLike / count),
           windSpeed: Math.round(avgData.windSpeed / count),

@@ -8,7 +8,6 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-  CardDescription,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Leaf } from "lucide-react";
@@ -120,11 +119,6 @@ export default function SustainabilityScorePage() {
     }
     const userData = JSON.parse(storedUser);
     setUser(userData);
-
-    // Pre-fill farm size if available
-    if (userData.farmDetails?.farmSize) {
-      form.setValue("farm_size", userData.farmDetails.farmSize);
-    }
   }, [router, form]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
@@ -138,7 +132,7 @@ export default function SustainabilityScorePage() {
         ...Object.fromEntries(
           Object.entries(values).map(([key, value]) => [
             key,
-            key === "crop_type" ? parseInt(value) : Number(value),
+            key === "crop_type" ? value : Number(value),
           ])
         ),
       };

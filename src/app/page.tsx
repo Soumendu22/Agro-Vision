@@ -1,7 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,7 +17,6 @@ import {
   Droplet,
   Wallet,
   Globe,
-  Leaf,
   Facebook,
   Twitter,
   Instagram,
@@ -27,8 +24,6 @@ import {
   Github,
   Mail,
 } from "lucide-react";
-import Link from "next/link";
-import Image from "next/image";
 import {
   Carousel,
   CarouselContent,
