@@ -5,6 +5,9 @@ import path from "path";
 interface SustainabilityData {
   soil_ph: number;
   soil_moisture: number;
+  temperature_c: number;
+  rainfall_mm: number;
+  crop_type: string;
   fertilizer_usage_kg: number;
   pesticide_usage_kg: number;
   crop_yield_ton: number;
@@ -113,17 +116,29 @@ export async function POST(req: Request) {
 
       pythonProcess.stderr.on("data", (data) => {
         error += data.toString();
+        try {
+          // Try to parse error as JSON
+          const errorJson = JSON.parse(error);
+          if (errorJson.error) {
+            error = errorJson.error;
+          }
+        } catch {
+          // If parsing fails, use the error string as is
+        }
       });
 
       pythonProcess.on("close", (code) => {
-        if (code !== 0) {
+        if (code !== 0 || error) {
           resolve(
             NextResponse.json(
               { error: error || "Prediction failed" },
               { status: 500, headers }
             )
           );
-        } else {
+          return;
+        }
+
+        try {
           const score = parseFloat(result.trim());
           if (isNaN(score)) {
             resolve(
@@ -134,12 +149,20 @@ export async function POST(req: Request) {
             );
             return;
           }
+
           resolve(
             NextResponse.json({
               score,
               rating: getRating(score),
               recommendations: getRecommendations(score, body),
             }, { headers })
+          );
+        } catch (e) {
+          resolve(
+            NextResponse.json(
+              { error: "Failed to parse prediction result" },
+              { status: 500, headers }
+            )
           );
         }
       });

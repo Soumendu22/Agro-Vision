@@ -1,7 +1,7 @@
 import sys
 import joblib
 import numpy as np
-import joblib 
+import json
 
 def predict_sustainability(features):
     try:
@@ -16,27 +16,34 @@ def predict_sustainability(features):
         features_scaled = scaler.transform(features_array)
         
         # Make prediction
-        prediction = model.predict(features_scaled)[0]
+        prediction = float(model.predict(features_scaled)[0])
         
-        return prediction
+        # Return prediction as a properly formatted string
+        return f"{prediction:.2f}"
         
     except Exception as e:
-        print(f"Error: {str(e)}", file=sys.stderr)
+        print(json.dumps({"error": str(e)}), file=sys.stderr)
         sys.exit(1)
 
 if __name__ == "__main__":
     if len(sys.argv) != 9:
-        print("Error: Incorrect number of arguments. Expected 8 features:", file=sys.stderr)
-        print("Soil_pH, Soil_Moisture, Temperature_C, Rainfall_mm, Crop_Type, Fertilizer_Usage_kg, Pesticide_Usage_kg, Crop_Yield_ton", file=sys.stderr)
+        error_msg = {
+            "error": "Incorrect number of arguments. Expected 8 features: Soil_pH, Soil_Moisture, Temperature_C, Rainfall_mm, Crop_Type, Fertilizer_Usage_kg, Pesticide_Usage_kg, Crop_Yield_ton"
+        }
+        print(json.dumps(error_msg), file=sys.stderr)
         sys.exit(1)
         
     try:
         features = [float(x) for x in sys.argv[1:]]
         prediction = predict_sustainability(features)
-        print(f"{prediction:.2f}")
+        # Ensure we output valid JSON
+        print(prediction)
+        sys.stdout.flush()
     except ValueError as e:
-        print(f"Error: Invalid input - {str(e)}", file=sys.stderr)
+        error_msg = {"error": f"Invalid input - {str(e)}"}
+        print(json.dumps(error_msg), file=sys.stderr)
         sys.exit(1)
     except Exception as e:
-        print(f"Error: {str(e)}", file=sys.stderr)
+        error_msg = {"error": str(e)}
+        print(json.dumps(error_msg), file=sys.stderr)
         sys.exit(1) 
