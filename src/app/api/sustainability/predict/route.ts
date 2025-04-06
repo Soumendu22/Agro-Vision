@@ -10,7 +10,28 @@ interface SustainabilityData {
   crop_yield_ton: number;
 }
 
+// Add OPTIONS handler for CORS preflight requests
+export async function OPTIONS() {
+  return NextResponse.json(
+    {},
+    {
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      },
+    }
+  );
+}
+
 export async function POST(req: Request) {
+  // Add CORS headers to the response
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  };
+
   try {
     const body = await req.json();
 
@@ -41,7 +62,7 @@ export async function POST(req: Request) {
     if (missingFields.length > 0) {
       return NextResponse.json(
         { error: `Missing or invalid values for: ${missingFields.join(", ")}` },
-        { status: 400 }
+        { status: 400, headers }
       );
     }
 
@@ -72,7 +93,7 @@ export async function POST(req: Request) {
     if (values.some(isNaN)) {
       return NextResponse.json(
         { error: "All fields must be valid numbers" },
-        { status: 400 }
+        { status: 400, headers }
       );
     }
 
@@ -99,7 +120,7 @@ export async function POST(req: Request) {
           resolve(
             NextResponse.json(
               { error: error || "Prediction failed" },
-              { status: 500 }
+              { status: 500, headers }
             )
           );
         } else {
@@ -108,7 +129,7 @@ export async function POST(req: Request) {
             resolve(
               NextResponse.json(
                 { error: "Invalid prediction result" },
-                { status: 500 }
+                { status: 500, headers }
               )
             );
             return;
@@ -118,7 +139,7 @@ export async function POST(req: Request) {
               score,
               rating: getRating(score),
               recommendations: getRecommendations(score, body),
-            })
+            }, { headers })
           );
         }
       });
@@ -127,7 +148,7 @@ export async function POST(req: Request) {
     const err = error as Error;
     return NextResponse.json(
       { error: err.message || "Failed to predict sustainability score" },
-      { status: 500 }
+      { status: 500, headers }
     );
   }
 }
