@@ -93,11 +93,8 @@ farmProfileSchema.index({ location: '2dsphere' });
 // Define model name as a constant to avoid typos
 const MODEL_NAME = 'FarmProfile';
 
-// Create the model type
-type FarmProfileModel = Model<IFarmProfile, {}, {}, {}>;
-
-// Get or create the model
-const FarmProfile: FarmProfileModel = mongoose.models[MODEL_NAME] as FarmProfileModel || 
+// Get or create the model with proper typing
+const FarmProfile = (mongoose.models[MODEL_NAME] as Model<IFarmProfile>) || 
   mongoose.model<IFarmProfile>(MODEL_NAME, farmProfileSchema);
 
 export default FarmProfile; 
