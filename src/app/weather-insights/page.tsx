@@ -42,7 +42,7 @@ const getWeatherIcon = (description: string) => {
 };
 
 export default function WeatherInsightsPage() {
-  const [weatherData, setWeatherData] = useState<WeatherData[]>([]);
+    const [weatherData, setWeatherData] = useState<WeatherData[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 

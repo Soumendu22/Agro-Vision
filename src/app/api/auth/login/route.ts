@@ -71,12 +71,11 @@ export async function POST(req: Request) {
       user: userResponse,
       token,
     });
-  } catch (error: Error) {
+  } catch (error: unknown) {
     console.error('Login error:', error);
     return NextResponse.json(
       { 
-        error: error.message || 'Something went wrong',
-        details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        error: error instanceof Error ? error.message : 'Failed to login'
       },
       { status: 500 }
     );

@@ -44,10 +44,10 @@ export function ChatBot() {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
 
-  const stopSpeaking = () => {
+  const stopSpeaking = useCallback(() => {
     window.speechSynthesis?.cancel();
     setIsSpeaking(false);
-  };
+  }, []);
 
   const speakMessage = useCallback((text: string) => {
     if ('speechSynthesis' in window) {
@@ -64,7 +64,7 @@ export function ChatBot() {
       setIsSpeaking(true);
       window.speechSynthesis.speak(utterance);
     }
-  }, []);
+  }, [stopSpeaking]);
 
   const handleSubmit = useCallback(async (e?: React.FormEvent, voiceInput?: string) => {
     e?.preventDefault();
@@ -131,8 +131,7 @@ export function ChatBot() {
     }
   }, [input, isLoading, speakMessage]);
 
-  useEffect(() => {
-    // Initialize speech recognition
+  const initializeSpeechRecognition = useCallback(() => {
     if (typeof window !== 'undefined' && 'webkitSpeechRecognition' in window) {
       const SpeechRecognition = window.webkitSpeechRecognition as new () => SpeechRecognition;
       const recognition = new SpeechRecognition();
@@ -151,6 +150,10 @@ export function ChatBot() {
 
       recognitionRef.current = recognition;
     }
+  }, [handleSubmit]);
+
+  useEffect(() => {
+    initializeSpeechRecognition();
 
     return () => {
       if (recognitionRef.current) {
@@ -158,13 +161,13 @@ export function ChatBot() {
       }
       window.speechSynthesis?.cancel();
     };
-  }, []);
+  }, [initializeSpeechRecognition]);
 
   useEffect(() => {
     if (scrollAreaRef.current) {
       scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
     }
-  }, [messages, handleSubmit]);
+  }, [messages]);
 
   const startListening = () => {
     if (recognitionRef.current) {
