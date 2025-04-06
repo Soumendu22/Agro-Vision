@@ -37,13 +37,20 @@ async function dbConnect() {
     if (!globalMongoose.promise) {
       const opts = {
         bufferCommands: false,
+        autoIndex: true, // Build indexes
+        maxPoolSize: 10, // Maintain up to 10 socket connections
       };
 
+      // Create a new connection
       globalMongoose.promise = mongoose.connect(MONGODB_URI, opts);
     }
 
     const conn = await globalMongoose.promise;
     globalMongoose.conn = conn;
+
+    // Ensure connection is established before returning
+    await conn.connection.asPromise();
+    
     return conn;
   } catch (error) {
     console.error("MongoDB connection error:", error);

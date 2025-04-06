@@ -90,6 +90,5 @@ const farmProfileSchema = new Schema({
 farmProfileSchema.index({ userId: 1 });
 farmProfileSchema.index({ location: '2dsphere' });
 
-const FarmProfile = mongoose.models.FarmProfile || mongoose.model<IFarmProfile>('FarmProfile', farmProfileSchema);
-
-export default FarmProfile; 
+// Check if the model exists before creating it
+export default mongoose.models.FarmProfile || mongoose.model<IFarmProfile>('FarmProfile', farmProfileSchema); 
