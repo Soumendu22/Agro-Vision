@@ -1,14 +1,24 @@
 import mongoose from "mongoose";
 
-declare global {
-  var mongoose: {
-    conn: typeof mongoose | null;
-    promise: Promise<typeof mongoose> | null;
-  } | null;
+// Declare a separate interface for the cached mongoose instance
+interface MongooseConnection {
+  conn: typeof mongoose | null;
+  promise: Promise<typeof mongoose> | null;
 }
 
-// Initialize global mongoose cache
-global.mongoose = global.mongoose || { conn: null, promise: null };
+// Declare the global namespace to avoid conflicts
+declare global {
+  // eslint-disable-next-line no-var
+  var mongooseCache: MongooseConnection | undefined;
+}
+
+// Initialize the mongoose cache
+const globalMongoose = global.mongooseCache || {
+  conn: null,
+  promise: null,
+};
+
+global.mongooseCache = globalMongoose;
 
 const MONGODB_URI = process.env.MONGODB_URI!;
 
@@ -20,20 +30,21 @@ if (!MONGODB_URI) {
 
 async function dbConnect() {
   try {
-    if (global.mongoose?.conn) {
-      return global.mongoose.conn;
+    if (globalMongoose.conn) {
+      return globalMongoose.conn;
     }
 
-    if (!global.mongoose?.promise) {
+    if (!globalMongoose.promise) {
       const opts = {
         bufferCommands: false,
       };
 
-      global.mongoose.promise = mongoose.connect(MONGODB_URI, opts);
+      globalMongoose.promise = mongoose.connect(MONGODB_URI, opts);
     }
 
-    global.mongoose.conn = await global.mongoose.promise;
-    return global.mongoose.conn;
+    const conn = await globalMongoose.promise;
+    globalMongoose.conn = conn;
+    return conn;
   } catch (error) {
     console.error("MongoDB connection error:", error);
     throw error;
