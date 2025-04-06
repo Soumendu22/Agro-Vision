@@ -90,14 +90,14 @@ const farmProfileSchema = new Schema({
 farmProfileSchema.index({ userId: 1 });
 farmProfileSchema.index({ location: '2dsphere' });
 
-// Compile model outside of try-catch for better error handling
-let FarmProfile: Model<IFarmProfile>;
-try {
-  // Try to get existing model
-  FarmProfile = mongoose.model<IFarmProfile>('FarmProfile');
-} catch {
-  // Model doesn't exist, create new one
-  FarmProfile = mongoose.model<IFarmProfile>('FarmProfile', farmProfileSchema);
-}
+// Define model name as a constant to avoid typos
+const MODEL_NAME = 'FarmProfile';
+
+// Create the model type
+type FarmProfileModel = Model<IFarmProfile, {}, {}, {}>;
+
+// Get or create the model
+const FarmProfile: FarmProfileModel = mongoose.models[MODEL_NAME] as FarmProfileModel || 
+  mongoose.model<IFarmProfile>(MODEL_NAME, farmProfileSchema);
 
 export default FarmProfile; 
