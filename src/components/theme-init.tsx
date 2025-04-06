@@ -1,20 +1,14 @@
 "use client"
 
+import { useEffect } from "react"
 import { useTheme } from "next-themes"
-import { useEffect, useState } from "react"
 
-export function ThemeInit({ children }: { children: React.ReactNode }) {
-  const [mounted, setMounted] = useState(false)
-  const { theme, setTheme } = useTheme()
+export function ThemeInit() {
+  const { resolvedTheme } = useTheme()
 
-  // useEffect only runs on the client, so now we can safely show the UI
   useEffect(() => {
-    setMounted(true)
+    document.body.classList.add("dark")
   }, [])
 
-  if (!mounted) {
-    return null
-  }
-
-  return <>{children}</>
+  return null
 } 

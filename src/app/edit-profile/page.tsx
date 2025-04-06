@@ -371,7 +371,7 @@ export default function EditProfilePage() {
                       </MapContainer>
                     </div>
                     <FormDescription>
-                      Click on the map to update your farm's location
+                      Click on the map to update your farm&apos;s location
                     </FormDescription>
                   </div>
 

@@ -34,10 +34,6 @@ interface SpeechRecognitionEvent {
   };
 }
 
-interface Window {
-  webkitSpeechRecognition: new () => SpeechRecognition;
-}
-
 export function ChatBot() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -47,70 +43,6 @@ export function ChatBot() {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
-
-  useEffect(() => {
-    // Initialize speech recognition
-    if (typeof window !== 'undefined' && 'webkitSpeechRecognition' in window) {
-      const SpeechRecognition = window.webkitSpeechRecognition as new () => SpeechRecognition;
-      const recognition = new SpeechRecognition();
-      recognition.continuous = false;
-      recognition.interimResults = false;
-
-      recognition.onresult = (event: SpeechRecognitionEvent) => {
-        const transcript = event.results[0][0].transcript;
-        setInput(transcript);
-        handleSubmit(undefined, transcript);
-      };
-
-      recognition.onend = () => {
-        setIsListening(false);
-      };
-
-      recognitionRef.current = recognition;
-    }
-
-    return () => {
-      if (recognitionRef.current) {
-        recognitionRef.current.stop();
-      }
-      window.speechSynthesis?.cancel();
-    };
-  }, []);
-
-  useEffect(() => {
-    if (scrollAreaRef.current) {
-      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
-    }
-  }, [messages]);
-
-  const startListening = () => {
-    if (recognitionRef.current) {
-      setIsListening(true);
-      recognitionRef.current.start();
-    }
-  };
-
-  const stopSpeaking = () => {
-    window.speechSynthesis?.cancel();
-    setIsSpeaking(false);
-  };
-
-  const speakMessage = (text: string) => {
-    if ('speechSynthesis' in window) {
-      stopSpeaking();
-
-      const utterance = new SpeechSynthesisUtterance(text);
-      
-      // Auto-detect language if possible
-      const detectedLanguage = text.match(/[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uac00-\ud7af]/) ? 'ja-JP' :
-        text.match(/[\u0900-\u097F]/) ? 'hi-IN' : 'en-US';
-      utterance.lang = detectedLanguage;
-
-      utterance.onend = () => setIsSpeaking(false);
-      setIsSpeaking(true);
-      window.speechSynthesis.speak(utterance);
-    }
-  };
 
   const handleSubmit = async (e?: React.FormEvent, voiceInput?: string) => {
     e?.preventDefault();
@@ -174,6 +106,70 @@ export function ChatBot() {
       }]);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    // Initialize speech recognition
+    if (typeof window !== 'undefined' && 'webkitSpeechRecognition' in window) {
+      const SpeechRecognition = window.webkitSpeechRecognition as new () => SpeechRecognition;
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = false;
+
+      recognition.onresult = (event: SpeechRecognitionEvent) => {
+        const transcript = event.results[0][0].transcript;
+        setInput(transcript);
+        handleSubmit(undefined, transcript);
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+
+      recognitionRef.current = recognition;
+    }
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+      window.speechSynthesis?.cancel();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (scrollAreaRef.current) {
+      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
+    }
+  }, [messages]);
+
+  const startListening = () => {
+    if (recognitionRef.current) {
+      setIsListening(true);
+      recognitionRef.current.start();
+    }
+  };
+
+  const stopSpeaking = () => {
+    window.speechSynthesis?.cancel();
+    setIsSpeaking(false);
+  };
+
+  const speakMessage = (text: string) => {
+    if ('speechSynthesis' in window) {
+      stopSpeaking();
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      
+      // Auto-detect language if possible
+      const detectedLanguage = text.match(/[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uac00-\ud7af]/) ? 'ja-JP' :
+        text.match(/[\u0900-\u097F]/) ? 'hi-IN' : 'en-US';
+      utterance.lang = detectedLanguage;
+
+      utterance.onend = () => setIsSpeaking(false);
+      setIsSpeaking(true);
+      window.speechSynthesis.speak(utterance);
     }
   };
 

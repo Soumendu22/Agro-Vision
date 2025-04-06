@@ -3,10 +3,9 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent } from "@/components/ui/card";
 import { Thermometer, Droplets, Wind, Sun, Cloud, CloudRain, ArrowLeft } from "lucide-react";
-import { format, addDays, subDays, startOfDay } from "date-fns";
+import { format, startOfDay } from "date-fns";
 import { Button } from "@/components/ui/button";
 
 interface WeatherData {

@@ -1,7 +1,9 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
 import {
   ArrowRight,
   Bot,

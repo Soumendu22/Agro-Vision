@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { Card } from '@/components/ui/card';
-import { Thermometer, Droplets, Wind, Sun, Cloud, CloudRain } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Thermometer, Droplets, Sun, Cloud, CloudRain } from 'lucide-react';
 import { getWeatherData, WeatherData } from '@/lib/weather';
 import { motion } from 'framer-motion';
+import { format } from 'date-fns';
 
 interface WeatherProps {
   lat: number;

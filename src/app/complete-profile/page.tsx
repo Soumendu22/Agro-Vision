@@ -402,7 +402,7 @@ export default function CompleteProfilePage() {
                       </MapContainer>
                     </div>
                     <FormDescription>
-                      Click on the map to set your farm's location
+                      Click on the map to set your farm&apos;s location
                     </FormDescription>
                   </div>
 
