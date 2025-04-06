@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -44,7 +44,29 @@ export function ChatBot() {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
 
-  const handleSubmit = async (e?: React.FormEvent, voiceInput?: string) => {
+  const stopSpeaking = () => {
+    window.speechSynthesis?.cancel();
+    setIsSpeaking(false);
+  };
+
+  const speakMessage = useCallback((text: string) => {
+    if ('speechSynthesis' in window) {
+      stopSpeaking();
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      
+      // Auto-detect language if possible
+      const detectedLanguage = text.match(/[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uac00-\ud7af]/) ? 'ja-JP' :
+        text.match(/[\u0900-\u097F]/) ? 'hi-IN' : 'en-US';
+      utterance.lang = detectedLanguage;
+
+      utterance.onend = () => setIsSpeaking(false);
+      setIsSpeaking(true);
+      window.speechSynthesis.speak(utterance);
+    }
+  }, []);
+
+  const handleSubmit = useCallback(async (e?: React.FormEvent, voiceInput?: string) => {
     e?.preventDefault();
     const messageText = voiceInput || input.trim();
     if ((!messageText && !voiceInput) || isLoading) return;
@@ -107,7 +129,7 @@ export function ChatBot() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [input, isLoading, speakMessage]);
 
   useEffect(() => {
     // Initialize speech recognition
@@ -148,28 +170,6 @@ export function ChatBot() {
     if (recognitionRef.current) {
       setIsListening(true);
       recognitionRef.current.start();
-    }
-  };
-
-  const stopSpeaking = () => {
-    window.speechSynthesis?.cancel();
-    setIsSpeaking(false);
-  };
-
-  const speakMessage = (text: string) => {
-    if ('speechSynthesis' in window) {
-      stopSpeaking();
-
-      const utterance = new SpeechSynthesisUtterance(text);
-      
-      // Auto-detect language if possible
-      const detectedLanguage = text.match(/[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uac00-\ud7af]/) ? 'ja-JP' :
-        text.match(/[\u0900-\u097F]/) ? 'hi-IN' : 'en-US';
-      utterance.lang = detectedLanguage;
-
-      utterance.onend = () => setIsSpeaking(false);
-      setIsSpeaking(true);
-      window.speechSynthesis.speak(utterance);
     }
   };
 

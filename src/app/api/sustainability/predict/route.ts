@@ -82,7 +82,7 @@ export async function POST(req: Request) {
       ...values.map((v) => v.toString()),
     ]);
 
-    return new Promise((resolve) => {
+    return new Promise<NextResponse>((resolve) => {
       let result = "";
       let error = "";
 
